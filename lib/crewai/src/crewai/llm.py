@@ -369,7 +369,9 @@ class LLM(BaseLLM):
 
         if explicit_provider:
             provider = explicit_provider
-            use_native = True
+            # Only use native SDK if the explicit provider is in SUPPORTED_NATIVE_PROVIDERS
+            # Otherwise, fall through to LiteLLM for providers like groq, together, deepseek, etc.
+            use_native = explicit_provider.lower() in SUPPORTED_NATIVE_PROVIDERS
             model_string = model
         elif "/" in model:
             prefix, _, model_part = model.partition("/")
@@ -419,8 +421,14 @@ class LLM(BaseLLM):
 
         # FALLBACK to LiteLLM
         if not LITELLM_AVAILABLE:
-            logger.error("LiteLLM is not available, falling back to LiteLLM")
-            raise ImportError("Fallback to LiteLLM is not available") from None
+            logger.error(
+                f"Model '{model}' requires LiteLLM but it is not installed. "
+                "Install it with: pip install 'crewai[litellm]' or pip install litellm"
+            )
+            raise ImportError(
+                f"Model '{model}' requires LiteLLM for inference but LiteLLM is not installed. "
+                "Please install it with: pip install 'crewai[litellm]' or pip install litellm"
+            ) from None
 
         instance = object.__new__(cls)
         super(LLM, instance).__init__(model=model, is_litellm=True, **kwargs)

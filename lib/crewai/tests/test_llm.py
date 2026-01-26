@@ -840,6 +840,34 @@ def test_explicit_provider_kwarg_takes_priority():
         assert llm2.provider == "openai"
 
 
+def test_explicit_provider_with_non_native_providers_uses_litellm():
+    """Test that explicit non-native providers (groq, together, deepseek, etc.) fall back to LiteLLM."""
+    # Test with groq provider
+    llm_groq = LLM(model="llama-3-70b", provider="groq", is_litellm=False)
+    assert llm_groq.is_litellm is True
+    assert llm_groq.model == "llama-3-70b"
+    
+    # Test with together provider
+    llm_together = LLM(model="mixtral-8x7b", provider="together", is_litellm=False)
+    assert llm_together.is_litellm is True
+    assert llm_together.model == "mixtral-8x7b"
+    
+    # Test with deepseek provider
+    llm_deepseek = LLM(model="deepseek-chat", provider="deepseek", is_litellm=False)
+    assert llm_deepseek.is_litellm is True
+    assert llm_deepseek.model == "deepseek-chat"
+    
+    # Test with fireworks provider
+    llm_fireworks = LLM(model="llama-v3-70b-instruct", provider="fireworks", is_litellm=False)
+    assert llm_fireworks.is_litellm is True
+    assert llm_fireworks.model == "llama-v3-70b-instruct"
+    
+    # Test with cohere provider
+    llm_cohere = LLM(model="command-r-plus", provider="cohere", is_litellm=False)
+    assert llm_cohere.is_litellm is True
+    assert llm_cohere.model == "command-r-plus"
+
+
 def test_validate_model_in_constants():
     """Test the _validate_model_in_constants method."""
     # OpenAI models
