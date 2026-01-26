@@ -449,6 +449,12 @@ class LLM(BaseLLM):
                     provider = prefix
                     use_native = False
                     model_string = model_part
+            else:
+                # Handle unmapped providers (e.g., groq, together, deepseek, etc.)
+                # These should fall through to LiteLLM
+                provider = prefix
+                use_native = False
+                model_string = model_part
         else:
             provider = cls._infer_provider_from_model(model)
             use_native = True
