@@ -397,7 +397,9 @@ class LLM(BaseLLM):
                 )
 
             provider = resolved_provider
-            use_native = True
+            # Only use native SDK if the resolved provider is in SUPPORTED_NATIVE_PROVIDERS
+            # Otherwise, fall through to LiteLLM for providers like groq, together, deepseek, etc.
+            use_native = resolved_provider.lower() in SUPPORTED_NATIVE_PROVIDERS
             model_string = model
 
         elif "/" in model:
